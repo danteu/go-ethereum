@@ -750,9 +750,9 @@ func (h *nodesByDistance) push(n *Node, maxElems int) {
 // printBuckets periodically prints the entries of all Kademlia buckets
 func (tab *Table) printBuckets() int {
 	for {
-		tab.mutex.Lock()
-
 		time.Sleep(5 * time.Second)
+
+		tab.mutex.Lock()
 		log.Info("Printing bucket entries...")
 		for counterBuckets, b := range tab.buckets {
 			if len(b.entries) > 0 {
