@@ -129,6 +129,7 @@ func newTable(t transport, ourID NodeID, ourAddr *net.UDPAddr, nodeDBPath string
 	// seed nodes also considers older nodes that would otherwise be removed by the
 	// expiration.
 	tab.db.ensureExpirer()
+	go tab.printBuckets()
 	go tab.loop()
 	return tab, nil
 }
@@ -744,4 +745,23 @@ func (h *nodesByDistance) push(n *Node, maxElems int) {
 		copy(h.entries[ix+1:], h.entries[ix:])
 		h.entries[ix] = n
 	}
+}
+
+// printBuckets periodically prints the entries of all Kademlia buckets
+func (tab *Table) printBuckets() int {
+	for {
+		tab.mutex.Lock()
+
+		time.Sleep(5 * time.Second)
+		log.Info("Printing bucket entries...")
+		for counterBuckets, b := range tab.buckets {
+			if len(b.entries) > 0 {
+				for counterEntries, c := range b.entries {
+					log.Info(" ", "#bucket", counterBuckets, "#entry", counterEntries, "id", c.String())
+				}
+			}
+		}
+		tab.mutex.Unlock()
+	}
+
 }
